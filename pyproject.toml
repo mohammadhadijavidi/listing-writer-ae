@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "listing-writer-ae"
+version = "0.1.0"
+description = "Bilingual (Arabic/English) AI property listing writer for Dubai: property data in, portal listing + social post out, checked for exaggerated claims and DLD/RERA ad particulars (permit number, company, off-plan details). Not legal advice."
+readme = "README.en.md"
+license = { text = "MIT" }
+authors = [{ name = "Mohammad Hadi Javidi" }]
+requires-python = ">=3.10"
+dependencies = []
+keywords = ["dubai", "real-estate", "property-listing", "arabic", "bilingual", "llm", "rera", "dld", "trakheesi", "uae", "copywriting", "compliance"]
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Natural Language :: Arabic",
+  "Natural Language :: English",
+  "Topic :: Office/Business",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.urls]
+Homepage = "https://github.com/mohammadhadijavidi/listing-writer-ae"
+Issues = "https://github.com/mohammadhadijavidi/listing-writer-ae/issues"
+
+[project.scripts]
+listing-writer-ae = "listing_writer_ae.cli:main"
+
+[tool.setuptools]
+packages = ["listing_writer_ae"]
+
+[tool.setuptools.package-data]
+listing_writer_ae = ["static/*.html", "static/fonts/*", "samples/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

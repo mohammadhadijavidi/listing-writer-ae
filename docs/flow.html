@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<style>
+@font-face { font-family: "NSA"; font-weight: 400; src: url(../listing_writer_ae/static/fonts/noto-sans-arabic-arabic-400-normal.woff2); unicode-range: U+0600-06FF, U+FE70-FEFF; }
+@font-face { font-family: "NSA"; font-weight: 700; src: url(../listing_writer_ae/static/fonts/noto-sans-arabic-arabic-700-normal.woff2); unicode-range: U+0600-06FF, U+FE70-FEFF; }
+:root { --ink:#0E1A27; --surface:#142536; --line:#2C445C; --text:#E8E3D8; --muted:#9AA7B4; --sand:#D8B26E; --err:#F0876A; --ok:#8CC7A1; --info:#8DB4D9; }
+* { box-sizing: border-box; }
+body { margin:0; width:1600px; height:900px; background:var(--ink); color:var(--text); font-family:"Inter","NSA",sans-serif; padding:44px 56px; }
+h1 { margin:0; font-size:30px; font-weight:700; }
+.sub { color:var(--muted); font-size:16px; margin-top:6px; }
+.ar { font-family:"NSA","Inter",sans-serif; direction:rtl; unicode-bidi:isolate; }
+.row { display:grid; grid-template-columns: 1fr 44px 1fr 44px 1.15fr 44px 1.15fr; align-items:stretch; margin-top:44px; }
+.box { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+.box h3 { margin:0 0 4px; font-size:18px; }
+.box .ar.h { color:var(--sand); font-size:16px; margin-bottom:10px; display:block; text-align:left; }
+.box ul { margin:0; padding-left:18px; font-size:14px; line-height:1.6; color:#cfd6dc; }
+.arrow { display:flex; align-items:center; justify-content:center; color:var(--sand); font-size:26px; }
+.code { border-color: var(--sand); }
+.llm { border-style: dashed; }
+.tag { display:inline-block; font-size:12px; border:1px solid var(--line); border-radius:999px; padding:1px 9px; color:var(--muted); margin-bottom:8px; }
+.code .tag { border-color:var(--sand); color:var(--sand); }
+.ex { margin-top:30px; display:grid; grid-template-columns: 1fr 60px 1fr; gap:0; align-items:center; }
+.ex .box { font-size:15px; line-height:1.7; }
+.ex .bad { border-color: rgba(240,135,106,.5); }
+.ex .good { border-color: rgba(140,199,161,.5); }
+.ex mark { background: rgba(240,135,106,.18); color: var(--err); border-bottom:1.5px solid var(--err); padding:0 2px; }
+.ex .lbl { font-size:12.5px; color:var(--muted); display:block; margin-bottom:4px; }
+.bottom { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:22px; margin-top:34px; }
+.out h3 { color:var(--ok); }
+.loop { margin-top:18px; color:var(--muted); font-size:15px; }
+.loop b { color:var(--err); font-weight:600; }
+.legend { position:absolute; bottom:36px; left:56px; right:56px; display:flex; gap:28px; color:var(--muted); font-size:13.5px; }
+.legend span::before { content:""; display:inline-block; width:22px; height:12px; border-radius:3px; margin-right:8px; vertical-align:-1px; border:1px solid var(--sand); }
+.legend span.l::before { border:1px dashed var(--line); }
+</style></head>
+<body>
+<h1>How listing-writer-ae works <span class="ar" style="color:var(--sand);font-size:24px;margin-left:14px">كيف يعمل كاتب الإعلانات</span></h1>
+<div class="sub">The model only writes prose from your facts. Code owns the compliance footer and decides what is publishable.</div>
+
+<div class="row">
+  <div class="box code">
+    <span class="tag">code</span>
+    <h3>1. Property data</h3><span class="ar h">بيانات العقار</span>
+    <ul><li>JSON / web form / API</li><li>type, beds, size, price</li><li>permit no., company, QR</li><li>off-plan: developer, project, escrow</li><li>agent notes (EN / AR)</li></ul>
+  </div>
+  <div class="arrow">&#8594;</div>
+  <div class="box code">
+    <span class="tag">code</span>
+    <h3>2. Input checks</h3><span class="ar h">فحص المدخلات</span>
+    <ul><li>permit, company, off-plan particulars, promo permit, QR <i>(DLD / RERA)</i></li><li>claim rules on agent notes: risky sentences are <b>kept out</b> of the draft</li></ul>
+  </div>
+  <div class="arrow">&#8594;</div>
+  <div class="box llm">
+    <span class="tag">LLM or mock</span>
+    <h3>3. Writer</h3><span class="ar h">كتابة الإعلان بالعربية والإنجليزية</span>
+    <ul><li>OpenAI-compatible, OpenRouter, Groq, Ollama, LM Studio, Anthropic</li><li><code>mock</code>: deterministic bilingual template, no LLM</li><li>told: use only these facts, no guarantees, no superlatives</li></ul>
+  </div>
+  <div class="arrow">&#8594;</div>
+  <div class="box code">
+    <span class="tag">code</span>
+    <h3>4. Footer + output checks</h3><span class="ar h">التذييل الإلزامي وفحص النص</span>
+    <ul><li>permit no., company, ORN / BRN, off-plan details appended by code</li><li>claims (EN + AR), facts vs data (beds, size, price, status, amenities), style</li></ul>
+  </div>
+</div>
+<div class="loop">LLM only: errors in step 4 go back to the writer as feedback, <b>one revision round</b>, then checked again.</div>
+
+<div class="bottom">
+  <div class="box out"><h3>Portal listing</h3><span class="ar h" style="color:var(--sand)">إعلان بوابات العقارات</span><ul><li>title + description + key facts, AR and EN</li></ul></div>
+  <div class="box out"><h3>Social post</h3><span class="ar h" style="color:var(--sand)">منشور التواصل الاجتماعي</span><ul><li>short post + hashtags, AR and EN</li></ul></div>
+  <div class="box out"><h3>Findings + verdict</h3><span class="ar h" style="color:var(--sand)">نتائج الفحص: جاهز أو غير جاهز للنشر</span><ul><li>bilingual messages, each compliance rule linked to its DLD / RERA source</li></ul></div>
+</div>
+
+<div class="ex">
+  <div class="box bad"><span class="lbl">Agent notes in (sample)</span>Upgraded kitchen in 2025. <mark>Guaranteed 8% ROI</mark> for investors! <span class="ar"><mark>أفضل سعر</mark> في المارينا!</span></div>
+  <div class="arrow">&#8594;</div>
+  <div class="box good"><span class="lbl">Published draft + findings</span>Upgraded kitchen in 2025. <span class="ar">مطبخ مُحدَّث في 2025.</span><br><span style="color:var(--err)">LW-C01 guaranteed return</span> · <span style="color:#E8C15A">LW-C02 superlative</span> · cited: RERA Circular 2-2022</div>
+</div>
+
+<div class="legend"><span>deterministic code (tested)</span><span class="l">language model (swappable)</span><em style="margin-left:auto;font-style:normal" class="ar">ليست استشارة قانونية · Not legal advice</em></div>
+</body></html>

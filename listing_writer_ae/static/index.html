@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>listing-writer-ae | كاتب الإعلانات العقارية</title>
+<style>
+@font-face { font-family: "Noto Sans Arabic"; font-weight: 400; src: url(/fonts/noto-sans-arabic-arabic-400-normal.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F; }
+@font-face { font-family: "Noto Sans Arabic"; font-weight: 700; src: url(/fonts/noto-sans-arabic-arabic-700-normal.woff2) format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF, U+200C-200F; }
+:root {
+  --ink: #0E1A27; --surface: #142536; --surface-2: #1A2E42; --line: #24384D;
+  --text: #E8E3D8; --muted: #9AA7B4; --sand: #D8B26E; --sand-ink: #2A2010;
+  --err: #F0876A; --warn: #E8C15A; --ok: #8CC7A1; --info: #8DB4D9;
+  --font: "Inter", "Noto Sans Arabic", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-ar: "Noto Sans Arabic", "Inter", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--ink); color: var(--text); font: 14px/1.55 var(--font); }
+body:lang(ar), [lang="ar"] { font-family: var(--font-ar); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--sand); outline-offset: 2px; }
+
+header { display: flex; align-items: center; gap: 16px; padding: 14px 24px; border-bottom: 1px solid var(--line); }
+.brand { font-weight: 700; font-size: 17px; letter-spacing: .1px; }
+.brand small { font-weight: 400; color: var(--muted); font-size: 13px; margin-inline-start: 8px; }
+.spacer { flex: 1; }
+.pill { border: 1px solid var(--line); border-radius: 999px; padding: 3px 11px; font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+.pill.sample { border-color: var(--sand); color: var(--sand); }
+.pill.mock { border-color: #3b5168; }
+.langbtn { background: none; border: 1px solid var(--line); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 13px; }
+
+main { display: grid; grid-template-columns: 330px 1fr; gap: 0; min-height: calc(100vh - 56px); }
+aside { border-inline-end: 1px solid var(--line); padding: 16px 20px; overflow: auto; }
+.section-title { font-size: 13px; color: var(--muted); margin: 14px 0 6px; font-weight: 700; }
+.section-title:first-child { margin-top: 0; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 7px; }
+label span { display: block; margin-bottom: 3px; }
+input[type=text], input[type=number], select, textarea {
+  width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font-size: 13px;
+}
+textarea { resize: vertical; min-height: 54px; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; color: var(--text); }
+.primary { width: 100%; margin-top: 10px; background: var(--sand); color: var(--sand-ink); border: 0; border-radius: 7px; padding: 9px 12px; font-weight: 700; cursor: pointer; }
+.primary:hover { filter: brightness(1.06); }
+.tabs { display: flex; gap: 4px; margin-bottom: 12px; }
+.tab { background: none; border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; cursor: pointer; font-size: 13px; color: var(--muted); }
+.tab[aria-selected=true] { background: var(--surface-2); color: var(--text); border-color: #3b5168; }
+
+section.out { padding: 16px 24px 24px; overflow: auto; }
+.status { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.verdict { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.verdict .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ok); }
+.verdict.bad .dot { background: var(--err); }
+.counts { color: var(--muted); font-size: 13px; }
+.by { color: var(--muted); font-size: 12.5px; margin-inline-start: auto; }
+
+.panes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.pane { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; }
+.pane-head { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--line); background: var(--surface-2); font-size: 12.5px; color: var(--muted); }
+.pane-head .ptab { background: none; border: 0; padding: 3px 8px; border-radius: 5px; cursor: pointer; color: var(--muted); font-size: 12.5px; }
+.pane-head .ptab[aria-selected=true] { color: var(--text); background: var(--surface); }
+.pane-head .copy { margin-inline-start: auto; background: none; border: 1px solid var(--line); border-radius: 5px; padding: 2px 8px; cursor: pointer; font-size: 12px; color: var(--muted); }
+.pane-body { padding: 14px 16px; }
+.ltitle { font-size: 17px; font-weight: 700; line-height: 1.4; margin: 0 0 8px; }
+.ldesc { white-space: pre-wrap; font-size: 13.5px; line-height: 1.65; max-height: 330px; overflow: auto; }
+.footer-box { margin-top: 10px; border-top: 1px dashed var(--line); padding-top: 8px; white-space: pre-wrap; font-size: 12.5px; color: var(--sand); }
+.tags { margin-top: 8px; font-size: 12.5px; color: var(--info); }
+mark { background: rgba(240,135,106,.18); color: var(--err); border-bottom: 1.5px solid var(--err); border-radius: 2px; padding: 0 1px; }
+mark.w { background: rgba(232,193,90,.14); color: var(--warn); border-color: var(--warn); }
+
+.findings { margin-top: 16px; }
+.findings h2 { font-size: 14px; margin: 0 0 8px; }
+.flist { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.f { border: 1px solid var(--line); border-inline-start: 3px solid var(--info); border-radius: 7px; padding: 8px 11px; background: var(--surface); font-size: 13px; }
+.f.error { border-inline-start-color: var(--err); }
+.f.warning { border-inline-start-color: var(--warn); }
+.f .meta { display: flex; gap: 8px; font-size: 11.5px; color: var(--muted); margin-bottom: 2px; flex-wrap: wrap; }
+.f .code { font-weight: 700; color: var(--text); }
+.f .q { color: var(--err); display: inline-block; }
+.f.warning .q { color: var(--warn); }
+.f .src { font-size: 11.5px; margin-top: 3px; }
+.f .src a { color: var(--info); text-decoration: none; }
+.f .src a:hover { text-decoration: underline; }
+.dropped { margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+.dropped s { color: var(--err); text-decoration-color: rgba(240,135,106,.6); }
+.disclaimer { margin-top: 14px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
+.empty { color: var(--muted); padding: 40px 0; text-align: center; }
+.err-box { color: var(--err); margin: 8px 0; font-size: 13px; }
+#checkview textarea { min-height: 220px; }
+.hidden { display: none !important; }
+
+@media (max-width: 1000px) {
+  main { grid-template-columns: 1fr; }
+  aside { border-inline-end: 0; border-bottom: 1px solid var(--line); }
+  .panes, .flist { grid-template-columns: 1fr; }
+  header { flex-wrap: wrap; padding: 12px 16px; }
+  section.out { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">listing-writer-ae <small data-i18n="tagline"></small></div>
+  <span class="spacer"></span>
+  <span class="pill sample hidden" id="samplePill" data-i18n="samplePill"></span>
+  <span class="pill mock" id="providerPill">…</span>
+  <button class="langbtn" id="langBtn" type="button">English</button>
+</header>
+<main>
+  <aside>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true" data-view="write" data-i18n="tabWrite"></button>
+      <button class="tab" role="tab" aria-selected="false" data-view="check" data-i18n="tabCheck"></button>
+    </div>
+    <form id="form" autocomplete="off">
+      <label><span data-i18n="sample"></span><select id="sampleSel"></select></label>
+      <div class="section-title" data-i18n="secProperty"></div>
+      <div class="grid2">
+        <label><span data-i18n="purpose"></span><select name="purpose"><option value="sale" data-i18n="sale"></option><option value="rent" data-i18n="rent"></option></select></label>
+        <label><span data-i18n="status"></span><select name="status"><option value="ready" data-i18n="ready"></option><option value="off_plan" data-i18n="offplan"></option></select></label>
+        <label><span data-i18n="type"></span><select name="property_type"></select></label>
+        <label><span data-i18n="community"></span><input type="text" name="community" dir="auto"></label>
+        <label><span data-i18n="bedrooms"></span><input type="number" name="bedrooms" min="0"></label>
+        <label><span data-i18n="bathrooms"></span><input type="number" name="bathrooms" min="0"></label>
+        <label><span data-i18n="size"></span><input type="number" name="size_sqft" min="0"></label>
+        <label><span data-i18n="price"></span><input type="number" name="price_aed" min="0"></label>
+      </div>
+      <label><span data-i18n="features"></span><input type="text" name="features" dir="auto"></label>
+      <label><span data-i18n="highlights"></span><textarea name="highlights" dir="ltr"></textarea></label>
+      <label><span data-i18n="highlightsAr"></span><textarea name="highlights_ar" dir="rtl"></textarea></label>
+      <div class="section-title" data-i18n="secCompliance"></div>
+      <div class="grid2">
+        <label><span data-i18n="permit"></span><input type="text" name="permit_number" dir="ltr"></label>
+        <label><span data-i18n="company"></span><input type="text" name="company_name" dir="auto"></label>
+      </div>
+      <label class="check"><input type="checkbox" name="qr_code_ready"> <span data-i18n="qr"></span></label>
+      <button class="primary" type="submit" data-i18n="generate"></button>
+      <div class="err-box hidden" id="formErr"></div>
+    </form>
+    <div id="checkview" class="hidden">
+      <label><span data-i18n="pasteAd"></span><textarea id="adText" dir="auto"></textarea></label>
+      <label class="check"><input type="checkbox" id="useProp" checked> <span data-i18n="useProp"></span></label>
+      <button class="primary" id="checkBtn" type="button" data-i18n="checkBtn"></button>
+    </div>
+  </aside>
+  <section class="out" aria-live="polite">
+    <div id="out"><div class="empty" data-i18n="empty"></div></div>
+  </section>
+</main>
+<script>
+const I18N = {
+  ar: {
+    tagline: "كاتب إعلانات عقارية لدبي بالعربية والإنجليزية، مع فحص الادعاءات",
+    samplePill: "SAMPLE · عقار تجريبي ببيانات وهمية", tabWrite: "كتابة إعلان", tabCheck: "فحص إعلان موجود",
+    sample: "عيّنة جاهزة", secProperty: "بيانات العقار", purpose: "الغرض", sale: "بيع", rent: "إيجار",
+    status: "الحالة", ready: "جاهز", offplan: "على المخطط", type: "النوع", community: "المنطقة",
+    bedrooms: "غرف النوم", bathrooms: "الحمامات", size: "المساحة (قدم²)", price: "السعر (درهم)",
+    features: "المزايا (مفصولة بفواصل)", highlights: "ملاحظات الوسيط (إنجليزي)", highlightsAr: "ملاحظات الوسيط (عربي)",
+    secCompliance: "التصاريح", permit: "رقم تصريح الإعلان", company: "اسم الشركة", qr: "رمز QR الخاص بالتصريح جاهز",
+    generate: "اكتب الإعلان وافحصه", pasteAd: "الصق نص الإعلان", useProp: "قارنه ببيانات العقار في النموذج", checkBtn: "افحص النص",
+    empty: "اختر عيّنة أو أدخل بيانات العقار ثم اضغط «اكتب الإعلان وافحصه».",
+    ok: "جاهز للنشر", notOk: "غير جاهز للنشر", counts: (s) => `${s.error} خطأ · ${s.warning} تحذير · ${s.info} ملاحظة`, inputOnly: "الأخطاء في ملاحظات الوسيط فقط، واستُبعدت من المسودة",
+    writtenBy: "كُتب بواسطة", portal: "بوابة العقارات", social: "تواصل اجتماعي", copy: "نسخ", copied: "تم النسخ",
+    paneAr: "العربية", paneEn: "English", findings: "نتائج الفحص", none: "لا توجد ملاحظات.",
+    dropped: "استُبعد من المسودة لأنه لم يجتز فحص الادعاءات:", where: "الموضع", source: "المصدر",
+    basis: { official: "شرط رسمي", heuristic: "قاعدة إرشادية", data: "مطابقة البيانات" },
+    sev: { error: "خطأ", warning: "تحذير", info: "ملاحظة" },
+    disclaimer: (d) => `ليست استشارة قانونية. فحوص آلية مبنية على منشورات دائرة الأراضي والأملاك ومؤسسة التنظيم العقاري (روجعت في ${d}). تحقّق من التصريح في نظام «تراخيصي» قبل النشر.`,
+  },
+  en: {
+    tagline: "Bilingual Dubai property listing writer with a claims checker",
+    samplePill: "SAMPLE property · fictional data", tabWrite: "Write listing", tabCheck: "Check existing ad",
+    sample: "Sample", secProperty: "Property", purpose: "Purpose", sale: "Sale", rent: "Rent",
+    status: "Status", ready: "Ready", offplan: "Off-plan", type: "Type", community: "Community",
+    bedrooms: "Bedrooms", bathrooms: "Bathrooms", size: "Size (sq ft)", price: "Price (AED)",
+    features: "Features (comma separated)", highlights: "Agent notes (English)", highlightsAr: "Agent notes (Arabic)",
+    secCompliance: "Permits", permit: "Ad permit number", company: "Company name", qr: "Permit QR code is ready",
+    generate: "Write and check listing", pasteAd: "Paste ad text", useProp: "Compare with the property in the form", checkBtn: "Check text",
+    empty: "Pick a sample or enter property data, then press “Write and check listing”.",
+    ok: "Ready to publish", notOk: "Not ready to publish", counts: (s) => `${s.error} error · ${s.warning} warning · ${s.info} info`, inputOnly: "errors are only in the agent notes, which were kept out of the draft",
+    writtenBy: "Written by", portal: "Portal", social: "Social", copy: "Copy", copied: "Copied",
+    paneAr: "العربية", paneEn: "English", findings: "Findings", none: "No findings.",
+    dropped: "Kept out of the draft because it failed the claim checks:", where: "Where", source: "Source",
+    basis: { official: "official rule", heuristic: "heuristic", data: "data match" },
+    sev: { error: "Error", warning: "Warning", info: "Info" },
+    disclaimer: (d) => `Not legal advice. Automated checks based on Dubai Land Department / RERA publications (checked ${d}). Verify your permit in Trakheesi before publishing.`,
+  },
+};
+const TYPES = ["apartment","studio","villa","townhouse","penthouse","duplex","hotel_apartment","office","retail","warehouse","land"];
+const TYPE_AR = {apartment:"شقة",studio:"استوديو",villa:"فيلا",townhouse:"تاون هاوس",penthouse:"بنتهاوس",duplex:"دوبلكس",hotel_apartment:"شقة فندقية",office:"مكتب",retail:"محل تجاري",warehouse:"مستودع",land:"أرض"};
+const params = new URLSearchParams(location.search);
+let lang = params.get("lang") === "en" ? "en" : "ar";
+let base = {};          // the loaded sample (fields not in the form are kept from it)
+let sources = {}, checked = "";
+let last = null;
+const paneTab = { ar: "portal", en: "portal" };
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const t = (k) => I18N[lang][k];
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-i18n]").forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  $("#langBtn").textContent = lang === "ar" ? "English" : "العربية";
+  const sel = $("select[name=property_type]"), v = sel.value;
+  sel.innerHTML = TYPES.map((x) => `<option value="${x}">${lang === "ar" ? TYPE_AR[x] : x.replace("_", " ")}</option>`).join("");
+  if (v) sel.value = v;
+  if (last) render(last.kind, last.data);
+}
+
+function fillForm(p) {
+  const f = $("#form");
+  for (const el of f.elements) {
+    if (!el.name || !(el.name in p)) continue;
+    if (el.type === "checkbox") el.checked = !!p[el.name];
+    else if (Array.isArray(p[el.name])) el.value = p[el.name].join(", ");
+    else el.value = p[el.name] ?? "";
+  }
+  $("#samplePill").classList.toggle("hidden", !p.sample);
+}
+
+function readForm() {
+  const p = JSON.parse(JSON.stringify(base));
+  for (const el of $("#form").elements) {
+    if (!el.name) continue;
+    if (el.type === "checkbox") p[el.name] = el.checked;
+    else if (el.type === "number") p[el.name] = el.value === "" ? null : Number(el.value);
+    else if (el.name === "features") {
+      const nv = el.value.split(",").map((s) => s.trim()).filter(Boolean);
+      if (JSON.stringify(nv) !== JSON.stringify(base.features || [])) { p.features = nv; delete p.features_ar; }
+    } else p[el.name] = el.value;
+  }
+  return p;
+}
+
+function highlight(text, findings, field) {
+  let html = esc(text);
+  const ms = findings.filter((f) => f.match && f.where === field && (f.category === "claim" || f.category === "consistency"))
+    .sort((a, b) => b.match.length - a.match.length);
+  for (const f of ms) {
+    const m = esc(f.match);
+    if (m.length < 2) continue;
+    html = html.split(m).join(`<mark class="${f.severity === "error" ? "" : "w"}" title="${esc(f.code)}">${m}</mark>`);
+  }
+  return html;
+}
+
+function pane(l, which) {
+  const isAr = which === "ar";
+  const tab = paneTab[which];
+  const title = isAr ? l.title_ar : l.title_en;
+  const body = tab === "portal" ? (isAr ? l.description_ar : l.description_en) : (isAr ? l.social_ar : l.social_en);
+  const field = tab === "portal" ? `description_${which}` : `social_${which}`;
+  const footer = isAr ? l.footer_ar : l.footer_en;
+  return `<div class="pane" lang="${which}" dir="${isAr ? "rtl" : "ltr"}">
+    <div class="pane-head" dir="${document.documentElement.dir}">
+      <strong style="color:var(--text)">${isAr ? t("paneAr") : t("paneEn")}</strong>
+      <button class="ptab" data-pane="${which}" data-tab="portal" aria-selected="${tab === "portal"}">${t("portal")}</button>
+      <button class="ptab" data-pane="${which}" data-tab="social" aria-selected="${tab === "social"}">${t("social")}</button>
+      <button class="copy" data-copy="${which}">${t("copy")}</button>
+    </div>
+    <div class="pane-body">
+      ${tab === "portal" ? `<h3 class="ltitle">${highlight(title, l.findings, "title_" + which)}</h3>` : ""}
+      <div class="ldesc">${highlight(body, l.findings, field)}</div>
+      ${footer ? `<div class="footer-box">${esc(footer)}</div>` : ""}
+      ${tab === "social" ? `<div class="tags" dir="ltr">${esc(l.hashtags.join(" "))}</div>` : ""}
+    </div></div>`;
+}
+
+function findingsHtml(findings) {
+  if (!findings.length) return `<p class="counts">${t("none")}</p>`;
+  return `<div class="flist">${findings.map((f) => `
+    <div class="f ${f.severity}">
+      <div class="meta"><span class="code">${esc(f.code)}</span><span>${t("sev")[f.severity]}</span><span>${t("basis")[f.basis] || f.basis}</span>${f.where ? `<span dir="ltr">${esc(f.where)}</span>` : ""}</div>
+      <div>${esc(lang === "ar" ? f.message_ar : f.message_en)}${f.match ? ` <span class="q">«<bdi>${esc(f.match)}</bdi>»</span>` : ""}</div>
+      ${f.sources.length ? `<div class="src">${t("source")}: ${f.sources.map((k) => sources[k] ? `<a href="${esc(sources[k].url)}" target="_blank" rel="noopener">${esc(lang === "ar" ? sources[k].title_ar : sources[k].title.split(" (")[0])}</a>` : esc(k)).join(" ، ")}</div>` : ""}
+    </div>`).join("")}</div>`;
+}
+
+function render(kind, d) {
+  last = { kind, data: d };
+  const out = $("#out");
+  if (kind === "check") {
+    const bad = d.summary.error > 0;
+    out.innerHTML = `<div class="status"><div class="verdict ${bad ? "bad" : ""}"><span class="dot"></span>${bad ? t("notOk") : t("ok")}</div><span class="counts">${t("counts")(d.summary)}</span></div>
+      <div class="findings">${findingsHtml(d.findings)}</div><p class="disclaimer">${esc(t("disclaimer")(checked))}</p>`;
+    return;
+  }
+  const s = d.summary;
+  out.innerHTML = `
+    <div class="status">
+      <div class="verdict ${d.ready_to_publish ? "" : "bad"}"><span class="dot"></span>${d.ready_to_publish ? t("ok") : t("notOk")}</div>
+      <span class="counts">${t("counts")(s)}${d.ready_to_publish && s.error ? ` (${t("inputOnly")})` : ""}</span>
+      <span class="by">${t("writtenBy")}: <span dir="ltr">${esc(d.written_by)}</span></span>
+    </div>
+    <div class="panes">${pane(d, "ar")}${pane(d, "en")}</div>
+    ${d.dropped_highlights.length ? `<div class="dropped">${t("dropped")} ${d.dropped_highlights.map((x) => `<s><bdi>${esc(x)}</bdi></s>`).join(" · ")}</div>` : ""}
+    <div class="findings"><h2>${t("findings")}</h2>${findingsHtml(d.findings)}</div>
+    <p class="disclaimer">${esc(t("disclaimer")(checked))}</p>`;
+}
+
+async function api(path, body) {
+  const r = await fetch(path, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : {});
+  const j = await r.json();
+  if (!r.ok) throw new Error(j.error || r.statusText);
+  return j;
+}
+
+async function generate() {
+  $("#formErr").classList.add("hidden");
+  try { render("listing", await api("/api/generate", { property: readForm() })); }
+  catch (e) { $("#formErr").textContent = e.message; $("#formErr").classList.remove("hidden"); }
+}
+
+async function loadSample(name) {
+  base = await api("/api/samples/" + encodeURIComponent(name));
+  fillForm(base);
+}
+
+document.addEventListener("click", async (e) => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  if (b.dataset.view) {
+    document.querySelectorAll(".tab").forEach((x) => x.setAttribute("aria-selected", x === b));
+    $("#form").classList.toggle("hidden", b.dataset.view !== "write");
+    $("#checkview").classList.toggle("hidden", b.dataset.view !== "check");
+  } else if (b.dataset.pane) {
+    paneTab[b.dataset.pane] = b.dataset.tab; render(last.kind, last.data);
+  } else if (b.dataset.copy) {
+    const w = b.dataset.copy, l = last.data;
+    const txt = paneTab[w] === "portal"
+      ? [l["title_" + w], l["description_" + w], l["footer_" + w]].join("\n\n")
+      : [l["social_" + w], l["footer_" + w], l.hashtags.join(" ")].join("\n\n");
+    try { await navigator.clipboard.writeText(txt); b.textContent = t("copied"); } catch { /* clipboard blocked */ }
+  } else if (b.id === "langBtn") {
+    lang = lang === "ar" ? "en" : "ar"; applyLang();
+  } else if (b.id === "checkBtn") {
+    const text = $("#adText").value;
+    try { render("check", await api("/api/check", { text, property: $("#useProp").checked ? readForm() : null })); }
+    catch (err) { $("#out").innerHTML = `<div class="err-box">${esc(err.message)}</div>`; }
+  }
+});
+$("#form").addEventListener("submit", (e) => { e.preventDefault(); generate(); });
+$("#sampleSel").addEventListener("change", async (e) => { await loadSample(e.target.value); generate(); });
+
+(async function init() {
+  applyLang();
+  const [h, s, src] = await Promise.all([api("/api/health"), api("/api/samples"), api("/api/sources")]);
+  sources = src.sources; checked = src.checked;
+  $("#providerPill").textContent = h.mock ? "provider: mock (template, no LLM)" : `provider: ${h.provider} · ${h.model}`;
+  $("#sampleSel").innerHTML = s.samples.map((n) => `<option value="${esc(n)}">${esc(n.replace(".json", ""))}</option>`).join("");
+  const want = params.get("sample");
+  const pick = s.samples.find((n) => want && n.startsWith(want)) || s.samples[0];
+  $("#sampleSel").value = pick;
+  await loadSample(pick);
+  await generate();
+})();
+</script>
+</body>
+</html>

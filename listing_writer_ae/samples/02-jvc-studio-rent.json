@@ -1,0 +1,23 @@
+{
+  "sample": true,
+  "purpose": "rent",
+  "property_type": "studio",
+  "status": "ready",
+  "community": "Jumeirah Village Circle",
+  "building": "Sample Residence",
+  "bathrooms": 1,
+  "size_sqft": 420,
+  "price_aed": 55000,
+  "rent_period": "yearly",
+  "cheques": 4,
+  "furnishing": "furnished",
+  "view": "Community view",
+  "parking": 1,
+  "features": ["Balcony", "Shared pool", "Gym", "Kids' play area", "24/7 security"],
+  "highlights": "Bright studio with full-height windows. Chiller free.",
+  "company_name": "Sample Realty LLC",
+  "agent_name": "Omar Example",
+  "agent_phone": "+971 55 000 0000",
+  "permit_number": "",
+  "qr_code_ready": false
+}
